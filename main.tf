@@ -2,7 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# 🔐 Security Group
 resource "aws_security_group" "web_sg" {
   name        = "web-sg"
   description = "Allow HTTP and SSH"
@@ -29,12 +28,10 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
-# 🌐 Get Default VPC
 data "aws_vpc" "default" {
   default = true
 }
 
-# 🌍 Get Subnets
 data "aws_subnets" "default" {
   filter {
     name   = "vpc-id"
@@ -42,7 +39,6 @@ data "aws_subnets" "default" {
   }
 }
 
-# 🚀 Launch Template
 resource "aws_launch_template" "web_template" {
   name_prefix   = "web-template"
   image_id      = "ami-0c02fb55956c7d316"
@@ -64,7 +60,6 @@ resource "aws_launch_template" "web_template" {
   )
 }
 
-# ⚖️ Load Balancer
 resource "aws_lb" "app_lb" {
   name               = "my-alb"
   load_balancer_type = "application"
@@ -72,7 +67,6 @@ resource "aws_lb" "app_lb" {
   security_groups    = [aws_security_group.web_sg.id]
 }
 
-# 🎯 Target Group
 resource "aws_lb_target_group" "tg" {
   name     = "my-tg"
   port     = 80
@@ -80,7 +74,6 @@ resource "aws_lb_target_group" "tg" {
   vpc_id   = data.aws_vpc.default.id
 }
 
-# 🔗 Listener
 resource "aws_lb_listener" "listener" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = 80
@@ -92,7 +85,6 @@ resource "aws_lb_listener" "listener" {
   }
 }
 
-# 📈 Auto Scaling Group
 resource "aws_autoscaling_group" "asg" {
   desired_capacity = 2
   max_size         = 3
@@ -114,7 +106,6 @@ resource "aws_autoscaling_group" "asg" {
   }
 }
 
-# 🌍 Output Load Balancer URL
 output "load_balancer_dns" {
   value = aws_lb.app_lb.dns_name
 }
